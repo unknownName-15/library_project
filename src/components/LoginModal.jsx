@@ -4,7 +4,7 @@ const LoginModal = ({ onClose, onLoginSuccess, onShowSignup }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  // --- 비밀번호 보이기/숨기기 상태 추가 ---
+  // 비밀번호 보이기/숨기기 상태
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLoginSubmit = () => {
@@ -36,22 +36,22 @@ const LoginModal = ({ onClose, onLoginSuccess, onShowSignup }) => {
         <div className="input-group" style={{ position: 'relative' }}>
           <label>비밀번호</label>
           <input 
-            // --- showPassword 상태에 따라 type이 변합니다 ---
+            // showPassword 상태에 따라 type이 변함
             type={showPassword ? "text" : "password"} 
             placeholder="비밀번호를 입력하세요" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ paddingRight: '45px' }} // 아이콘 자리를 위해 오른쪽 여백 추가
+            style={{ paddingRight: '45px' }}
           />
           
-          {/* --- 눈 아이콘 버튼 --- */}
+          {/* 눈 아이콘 버튼 */}
           <i 
             className={showPassword ? "ri-eye-line" : "ri-eye-off-line"}
             onClick={() => setShowPassword(!showPassword)}
             style={{
               position: 'absolute',
               right: '15px',
-              top: '38px', // 라벨 높이를 고려한 위치
+              top: '38px', 
               cursor: 'pointer',
               color: '#999',
               fontSize: '20px'

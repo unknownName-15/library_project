@@ -1,6 +1,5 @@
 import React from 'react';
 
-// 1. 여기서 onWriteClick을 꼭 받아와야 합니다!
 const BoardList = ({ title, posts, onBack, onPostClick, onWriteClick }) => {
   return (
     <div className="board-list-container fade-in">

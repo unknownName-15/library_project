@@ -1,6 +1,6 @@
 import React from 'react';
 
-// props로 제목, 아이콘, 데이터를 전달받습니다.
+// props로 제목, 아이콘, 데이터를 전달받음
 const CommunityBoard = ({ title, icon, data, onMoreClick }) => {
   return (
     <div className="board-card">

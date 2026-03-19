@@ -1,6 +1,24 @@
 import React from 'react';
 
-const BookDetail = ({ onBack }) => {
+// onJoin props를 추가로 받아옴
+const BookDetail = ({ onBack, onJoin }) => {
+  
+  // 이 페이지에서 신청할 모임의 정보 데이터
+  const groupData = {
+    id: 99, // HomeView에서 설정한 ID와 동일하게 맞추거나 고유하게 설정
+    title: "한강 작가 '작별하지 않는다' 토론",
+    date: "2026년 4월 15일 (수) 오후 7:30",
+    tag: "강남/오프라인"
+  };
+
+  const handleApply = () => {
+    if (onJoin) {
+      onJoin(groupData); // App.jsx의 joinGroup 함수 실행
+    } else {
+      alert('신청 기능을 불러올 수 없습니다.');
+    }
+  };
+
   return (
     <div className="detail-container">
       {/* 뒤로가기 버튼 */}
@@ -24,7 +42,7 @@ const BookDetail = ({ onBack }) => {
           
           <div className="event-box">
             <h3><i className="ri-calendar-check-line"></i> 모임 정보</h3>
-            <p><strong>일시:</strong> 2026년 4월 15일 (수) 오후 7:30</p>
+            <p><strong>일시:</strong> {groupData.date}</p>
             <p><strong>장소:</strong> 강남역 인근 북카페 '문장' (오프라인)</p>
             <p><strong>정원:</strong> 8명 (현재 5명 신청 중)</p>
           </div>
@@ -40,7 +58,7 @@ const BookDetail = ({ onBack }) => {
 
           <div style={{ marginBottom: '40px' }}></div>
 
-          <button className="apply-btn" onClick={() => alert('신청이 완료되었습니다!')}>
+          <button className="apply-btn" onClick={handleApply}>
             이 모임 참여하기
           </button>
         </div>

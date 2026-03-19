@@ -10,7 +10,7 @@ const EditModal = ({ onClose, onSubmit, post }) => {
       alert('제목과 내용을 모두 입력해주세요!');
       return;
     }
-    // 부모의 handleEditSubmit 함수로 데이터 전달
+    // App.jsx의 handleEditSubmit 함수로 데이터 전달
     onSubmit({ ...post, title, content }); 
     onClose();
   };
