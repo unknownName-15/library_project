@@ -4,8 +4,10 @@ const Header = ({
   isLoggedIn, userName, notifications, isNotiOpen, setIsNotiOpen, 
   isMenuOpen, setIsMenuOpen, setModalType, setIsLoggedIn,
   deleteNotification, allRead,
-  searchQuery, setSearchQuery, isSearchOpen, setIsSearchOpen, allBooks, onAddBook
+  searchQuery, setSearchQuery, isSearchOpen, setIsSearchOpen, allBooks, onAddBook,
+  setView, setUserName, setUserId, isAdmin, setIsAdmin
 }) => {
+  console.log('isAdmin 확인:', isAdmin);
   
   // 실시간 검색어 필터링
   const filteredBooks = allBooks.filter(book => 
@@ -105,9 +107,15 @@ const Header = ({
               {isMenuOpen && (
                 <div className="dropdown-menu">
                   <div className="dropdown-item" style={{fontWeight: 'bold', borderBottom: '1px solid #eee'}}>{userName}님</div>
-                  <div className="dropdown-item">회원 정보</div>
-                  <div className="dropdown-item logout" style={{ color: 'var(--color-point)', fontWeight: 'bold' }} onClick={() => { setIsLoggedIn(false); setIsMenuOpen(false); }}>로그아웃</div>
+                  <div className="dropdown-item" onClick={() => { setView('userinfo'); setIsMenuOpen(false); }}>회원 정보</div>
+                  {isAdmin && (  
+                    <div className="dropdown-item" onClick={() => { setView('admin'); setIsMenuOpen(false); }}>
+                      <i className="ri-shield-user-line"></i> 관리자 페이지
+                    </div>
+                  )}
+                  <div className="dropdown-item logout" style={{ color: 'var(--color-point)', fontWeight: 'bold' }} onClick={() => { setIsLoggedIn(false); setIsMenuOpen(false); setUserName(''); setUserId(null); setIsAdmin(false); localStorage.removeItem('userName'); localStorage.removeItem('userId'); localStorage.removeItem('isAdmin'); }}>로그아웃</div>
                 </div>
+                
               )}
             </>
           ) : (

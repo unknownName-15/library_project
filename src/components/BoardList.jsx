@@ -42,7 +42,9 @@ const BoardList = ({ title, posts, onBack, onPostClick, onWriteClick }) => {
                 </td>
                 
                 <td style={{ padding: '18px' }}>익명</td>
-                <td style={{ padding: '18px', color: '#999', fontSize: '13px' }}>{post.date}</td>
+                <td style={{ padding: '18px', color: '#999', fontSize: '13px' }}>
+                  {post.created_at?.slice(0, 10)}
+                </td>
               </tr>
             ))}
           </tbody>
