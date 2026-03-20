@@ -73,23 +73,28 @@ const Header = ({
             style={{ fontSize: '22px', cursor: 'pointer' }}
             onClick={() => { setIsNotiOpen(!isNotiOpen); setIsMenuOpen(false); }}
           ></i>
-          {notifications.length > 0 && (
+          {notifications.filter(n => n.is_read == 0).length > 0 && (
             <span className="badge-dot" style={{ position: 'absolute', top: '0px', right: '0px', width: '8px', height: '8px', backgroundColor: '#e74c3c', borderRadius: '50%', border: '2px solid #f4f4f4' }}></span>
           )}
           
           {isNotiOpen && (
             <div className="noti-dropdown">
               <div className="noti-header">
-                <span>알림 {notifications.length}</span>
+                <span>알림 {notifications.filter(n => n.is_read == 0).length}</span>
                 {notifications.length > 0 && <span className="all-read-btn" onClick={allRead}>모두 읽음</span>}
               </div>
               {notifications.length > 0 ? (
-                notifications.map((noti) => (
-                  <div key={noti.id} className="noti-item" onClick={() => deleteNotification(noti.id)}>
-                    <div className="noti-item-title">{noti.message}</div>
-                    <div className="noti-item-time">{noti.time}</div>
-                  </div>
-                ))
+                notifications.filter(noti => noti.is_read == 0).map((noti) => (
+  <div
+    key={noti.id}
+    className="noti-item"
+    onClick={() => deleteNotification(noti.id)}
+    style={{ backgroundColor: noti.is_read == 1 ? 'white' : '#f0f4ef' }}
+  >
+    <div className="noti-item-title">{noti.message}</div>
+    <div className="noti-item-time">{noti.created_at?.slice(0, 16).replace('T', ' ')}</div>
+  </div>
+))
               ) : (
                 <div className="noti-empty">새로운 알림이 없습니다. ✨</div>
               )}

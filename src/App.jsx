@@ -37,11 +37,7 @@ const BookCommunityApp = () => {
   const [myList, setMyList] = useState([]);
   const [joinedGroups, setJoinedGroups] = useState([]);
 
-  const [notifications, setNotifications] = useState([
-    { id: 1, message: "'익명'님이 내 '데미안' 리뷰에 댓글을 남겼습니다.", time: "5분 전" },
-    { id: 2, message: "신청하신 '주말 독서 토론' 모임이 승인되었습니다.", time: "2시간 전" },
-    { id: 3, message: "'한강' 작가님의 신작 소식이 업데이트되었습니다.", time: "어제" }
-  ]);
+  const [notifications, setNotifications] = useState([]);
 
   const allBooks = [
     { id: 1, title: "데미안", author: "헤르만 헤세" },
@@ -59,6 +55,28 @@ const BookCommunityApp = () => {
     setToast(message);
     setTimeout(() => setToast(''), 3000);
   };
+
+  // 알림 불러오기
+const fetchNotifications = async () => {
+  if (!userId) return;
+  try {
+    const res = await fetch(`${API_BASE}/get_notifications.php?user_id=${userId}`);
+    const data = await res.json();
+    if (data.success) {
+      setNotifications(data.notifications);
+    }
+  } catch (err) {
+    console.error('알림 불러오기 실패', err);
+  }
+};
+
+// 5초마다 알림 폴링
+useEffect(() => {
+  if (!userId) return;
+  fetchNotifications();
+  const timer = setInterval(fetchNotifications, 5000);
+  return () => clearInterval(timer);
+}, [userId]);
 
   // --- 게시판 불러오기 ---
   const fetchPosts = async (type) => {
@@ -233,8 +251,31 @@ const BookCommunityApp = () => {
     showToast('댓글이 삭제되었습니다.');
   };
 
-  const deleteNotification = (id) => setNotifications(notifications.filter(n => n.id !== id));
-  const allRead = () => setNotifications([]);
+  // 읽음 처리 후 목록 새로고침
+const deleteNotification = async (id) => {
+  try {
+    await fetch(`${API_BASE}/read_notification.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, noti_id: id })
+    });
+    fetchNotifications();
+  } catch (err) {
+    console.error('알림 읽음 처리 실패', err);
+  }
+};
+  const allRead = async () => {
+  try {
+    await fetch(`${API_BASE}/read_notification.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId })
+    });
+    fetchNotifications();
+  } catch (err) {
+    console.error('전체 읽음 처리 실패', err);
+  }
+};
 
   return (
     <div className="wrapper" onClick={() => setIsSearchOpen(false)}>
