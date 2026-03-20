@@ -5,7 +5,8 @@ const HomeView = ({ popularBooks, setView }) => {
   const [slideAnimation, setSlideAnimation] = useState('slide-in');
 
   // 슬라이드 계산 로직
-  const itemsPerPage = 3;
+  const isMobile = document.body.classList.contains('mobile-mode');
+  const itemsPerPage = isMobile ? 2 : 3;
   const totalPages = Math.ceil(popularBooks.length / itemsPerPage);
   const displayedBooks = popularBooks.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 

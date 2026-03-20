@@ -29,42 +29,48 @@ const MyLibraryView = ({ wishList, myList, joinedGroups, onRemove, onLeaveGroup 
       </section>
       
       {/* 위시리스트 섹션 */}
-      <section className="library-section">
-        <h3 className="board-title"><i className="ri-heart-line"></i> 위시리스트 ({wishList.length})</h3>
-        <div className="book-shelf">
-          {wishList.length > 0 ? wishList.map(book => (
-            <div key={book.id} className="book-card mini">
-              {/* 삭제 버튼 */}
-              <button className="delete-btn" onClick={() => onRemove(book.id, 'wish')}>
-                <i className="ri-delete-bin-line"></i>
-              </button>
-              <div className="card-img" style={{ height: '140px' }}>
-                <i className="ri-book-read-line"></i>
-              </div>
-              <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{book.title}</div>
-            </div>
-          )) : <div className="no-result">읽고 싶은 책을 담아보세요!</div>}
+<section className="library-section">
+  <h3 className="board-title"><i className="ri-heart-line"></i> 위시리스트 ({wishList.length})</h3>
+  {wishList.length > 0 ? (
+    <div className="book-shelf">
+      {wishList.map(book => (
+        <div key={book.id} className="book-card mini">
+          <button className="delete-btn" onClick={() => onRemove(book.id, 'wish')}>
+            <i className="ri-delete-bin-line"></i>
+          </button>
+          <div className="card-img" style={{ height: '140px' }}>
+            <i className="ri-book-read-line"></i>
+          </div>
+          <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{book.title}</div>
         </div>
-      </section>
+      ))}
+    </div>
+  ) : (
+    <div style={{ textAlign: 'center', color: '#bbb', padding: '20px 0', fontSize: '14px' }}>읽고 싶은 책을 담아보세요!</div>
+  )}
+</section>
 
-      {/* 마이리스트 섹션 */}
-      <section className="library-section">
-        <h3 className="board-title"><i className="ri-bookmark-line"></i> 마이리스트 ({myList.length})</h3>
-        <div className="book-shelf">
-          {myList.length > 0 ? myList.map(book => (
-            <div key={book.id} className="book-card mini">
-              {/* 삭제 버튼 */}
-              <button className="delete-btn" onClick={() => onRemove(book.id, 'read')}>
-                <i className="ri-delete-bin-line"></i>
-              </button>
-              <div className="card-img" style={{ height: '140px', background: '#f0f4ef' }}>
-                <i className="ri-checkbox-circle-line" style={{ color: 'var(--color-point)' }}></i>
-              </div>
-              <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{book.title}</div>
-            </div>
-          )) : <div className="no-result">다 읽은 책을 기록해보세요!</div>}
+{/* 마이리스트 섹션 */}
+<section className="library-section">
+  <h3 className="board-title"><i className="ri-bookmark-line"></i> 마이리스트 ({myList.length})</h3>
+  {myList.length > 0 ? (
+    <div className="book-shelf">
+      {myList.map(book => (
+        <div key={book.id} className="book-card mini">
+          <button className="delete-btn" onClick={() => onRemove(book.id, 'read')}>
+            <i className="ri-delete-bin-line"></i>
+          </button>
+          <div className="card-img" style={{ height: '140px', background: '#f0f4ef' }}>
+            <i className="ri-checkbox-circle-line" style={{ color: 'var(--color-point)' }}></i>
+          </div>
+          <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{book.title}</div>
         </div>
-      </section>
+      ))}
+    </div>
+  ) : (
+    <div style={{ textAlign: 'center', color: '#bbb', padding: '20px 0', fontSize: '14px' }}>다 읽은 책을 기록해보세요!</div>
+  )}
+</section>
     </div>
   );
 };

@@ -2,13 +2,16 @@ import React from 'react';
 
 const BoardList = ({ title, posts, onBack, onPostClick, onWriteClick }) => {
   return (
-    <div className="board-list-container fade-in">
+    <div className="board-list-container fade-in" style={{ width: '100%', boxSizing: 'border-box' }}>
       {/* 헤더 영역 */}
       <div className="board-list-header">
         <button className="back-btn" onClick={onBack} style={{ cursor: 'pointer', border: 'none', background: 'none', color: '#888', marginBottom: '10px' }}>
           <i className="ri-arrow-left-line"></i> 광장으로 돌아가기
         </button>
-        <h2 className="board-list-title" style={{ fontSize: '28px', color: 'var(--color-point)', marginBottom: '30px' }}>{title}</h2>
+        <h2 className="board-list-title" style={{ fontSize: '28px', color: 'var(--color-point)', marginBottom: '8px' }}>{title}</h2>
+        <p style={{ fontSize: '14px', color: '#999', marginBottom: '20px' }}>
+          총 <span style={{ color: 'var(--color-point)', fontWeight: 'bold' }}>{posts.length}</span>개의 글이 있습니다.
+        </p>
       </div>
 
       {/* 게시글 테이블 */}

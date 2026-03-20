@@ -16,6 +16,7 @@ import MyLibraryView from './components/MyLibraryView';
 import GroupView from './components/GroupView';
 import UserInfoView from './components/UserInfoView';
 import AdminView from './components/AdminView';
+import MobileHeader from './components/MobileHeader';
 
 const BookCommunityApp = () => {
   const [view, setView] = useState('main');
@@ -27,6 +28,7 @@ const BookCommunityApp = () => {
   const [userId, setUserId] = useState(() => localStorage.getItem('userId') ? parseInt(localStorage.getItem('userId')) : null);
   const [toast, setToast] = useState('');
   const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('isAdmin') === '1');
+  const [isMobileMode, setIsMobileMode] = useState(() => localStorage.getItem('mobileMode') === 'true');
 
   const [myBooks, setMyBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,8 +38,22 @@ const BookCommunityApp = () => {
   const [wishList, setWishList] = useState([]);
   const [myList, setMyList] = useState([]);
   const [joinedGroups, setJoinedGroups] = useState([]);
-
   const [notifications, setNotifications] = useState([]);
+
+  const toggleMobileMode = () => {
+    setIsMobileMode(prev => {
+      localStorage.setItem('mobileMode', !prev);
+      return !prev;
+    });
+  };
+
+  useEffect(() => {
+    if (isMobileMode) {
+      document.body.classList.add('mobile-mode');
+    } else {
+      document.body.classList.remove('mobile-mode');
+    }
+  }, [isMobileMode]);
 
   const allBooks = [
     { id: 1, title: "데미안", author: "헤르만 헤세" },
@@ -57,38 +73,58 @@ const BookCommunityApp = () => {
   };
 
   // 알림 불러오기
-const fetchNotifications = async () => {
-  if (!userId) return;
-  try {
-    const res = await fetch(`${API_BASE}/get_notifications.php?user_id=${userId}`);
-    const data = await res.json();
-    if (data.success) {
-      setNotifications(data.notifications);
+  const fetchNotifications = async () => {
+    if (!userId) return;
+    try {
+      const res = await fetch(`${API_BASE}/get_notifications.php?user_id=${userId}`);
+      const data = await res.json();
+      if (data.success) setNotifications(data.notifications);
+    } catch (err) {
+      console.error('알림 불러오기 실패', err);
     }
-  } catch (err) {
-    console.error('알림 불러오기 실패', err);
-  }
-};
+  };
 
-// 5초마다 알림 폴링
-useEffect(() => {
-  if (!userId) return;
-  fetchNotifications();
-  const timer = setInterval(fetchNotifications, 5000);
-  return () => clearInterval(timer);
-}, [userId]);
+  // 5초마다 알림 폴링
+  useEffect(() => {
+    if (!userId) return;
+    fetchNotifications();
+    const timer = setInterval(fetchNotifications, 5000);
+    return () => clearInterval(timer);
+  }, [userId]);
 
-  // --- 게시판 불러오기 ---
+  // 알림 읽음 처리
+  const deleteNotification = async (id) => {
+    try {
+      await fetch(`${API_BASE}/read_notification.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, noti_id: id })
+      });
+      fetchNotifications();
+    } catch (err) {
+      console.error('알림 읽음 처리 실패', err);
+    }
+  };
+
+  const allRead = async () => {
+    try {
+      await fetch(`${API_BASE}/read_notification.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId })
+      });
+      fetchNotifications();
+    } catch (err) {
+      console.error('전체 읽음 처리 실패', err);
+    }
+  };
+
+  // 게시판 불러오기
   const fetchPosts = async (type) => {
     try {
       const res = await fetch(`${API_BASE}/get_posts.php?board_type=${type}`);
       const data = await res.json();
-      if (data.success) {
-        return data.posts.map(post => ({
-          ...post,
-          comments: []
-        }));
-      }
+      if (data.success) return data.posts.map(post => ({ ...post, comments: [] }));
     } catch (err) {
       showToast('게시글을 불러오지 못했습니다.');
     }
@@ -101,9 +137,8 @@ useEffect(() => {
     setView('board-detail');
   };
 
-  // --- 글쓰기 ---
+  // 글쓰기
   const handleWriteSubmit = async (newPost) => {
-    console.log('writer 확인:', userName); // 이 줄 추가!
     try {
       const res = await fetch(`${API_BASE}/write_post.php`, {
         method: 'POST',
@@ -129,17 +164,13 @@ useEffect(() => {
     }
   };
 
-  // --- 글 수정 ---
+  // 글 수정
   const handleEditSubmit = async (updatedPost) => {
     try {
       const res = await fetch(`${API_BASE}/edit_post.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: updatedPost.id,
-          title: updatedPost.title,
-          content: updatedPost.content
-        })
+        body: JSON.stringify({ id: updatedPost.id, title: updatedPost.title, content: updatedPost.content })
       });
       const data = await res.json();
       if (data.success) {
@@ -155,7 +186,7 @@ useEffect(() => {
     }
   };
 
-  // --- 글 삭제 ---
+  // 글 삭제
   const handleDeletePost = async (postId) => {
     try {
       const res = await fetch(`${API_BASE}/delete_post.php`, {
@@ -183,22 +214,20 @@ useEffect(() => {
   };
 
   const handleLoginSuccess = (name, id, isAdmin) => {
-  setUserName(name);
-  setUserId(id);
-  setIsAdmin(isAdmin == 1);  // === 대신 == 으로 변경 (타입 무시하고 비교)
-  setIsLoggedIn(true);
-  setModalType(null);
-  localStorage.setItem('userName', name);
-  localStorage.setItem('userId', id);
-  localStorage.setItem('isAdmin', isAdmin == 1 ? '1' : '0');
-  showToast(`${name}님, 환영합니다!`);
-};
-
-  const handleNicknameChange = (newNickname) => {
-    setUserName(newNickname);
+    setUserName(name);
+    setUserId(id);
+    setIsAdmin(isAdmin == 1);
+    setIsLoggedIn(true);
+    setModalType(null);
+    localStorage.setItem('userName', name);
+    localStorage.setItem('userId', id);
+    localStorage.setItem('isAdmin', isAdmin == 1 ? '1' : '0');
+    showToast(`${name}님, 환영합니다!`);
   };
 
-  // --- 서재 관련 (기존 유지) ---
+  const handleNicknameChange = (newNickname) => setUserName(newNickname);
+
+  // 서재 관련
   const addToMyLibrary = (book, type) => {
     if (type === 'wish') {
       if (wishList.find(b => b.id === book.id)) { showToast('이미 위시리스트에 있는 책입니다.'); return; }
@@ -251,118 +280,136 @@ useEffect(() => {
     showToast('댓글이 삭제되었습니다.');
   };
 
-  // 읽음 처리 후 목록 새로고침
-const deleteNotification = async (id) => {
-  try {
-    await fetch(`${API_BASE}/read_notification.php`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, noti_id: id })
-    });
-    fetchNotifications();
-  } catch (err) {
-    console.error('알림 읽음 처리 실패', err);
-  }
-};
-  const allRead = async () => {
-  try {
-    await fetch(`${API_BASE}/read_notification.php`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId })
-    });
-    fetchNotifications();
-  } catch (err) {
-    console.error('전체 읽음 처리 실패', err);
-  }
-};
+  // 콘텐츠 뷰 렌더링
+  const renderContent = () => (
+    <>
+      {view === 'main' && <HomeView popularBooks={allBooks} setView={setView} />}
+      {view === 'community' && <CommunityView handleBoardDetail={handleBoardDetail} />}
+      {view === 'board-detail' && (
+        <BoardList
+          title={selectedBoard.title}
+          posts={selectedBoard.data}
+          onBack={() => setView('community')}
+          onPostClick={handlePostDetail}
+          onWriteClick={() => {
+            if (!isLoggedIn) { showToast('로그인이 필요합니다.'); setModalType('login'); return; }
+            setModalType('write');
+          }}
+        />
+      )}
+      {view === 'post-detail' && (
+        <PostDetail
+          post={selectedPost}
+          onBack={() => setView('board-detail')}
+          onDelete={handleDeletePost}
+          onEdit={() => {
+            if (!isLoggedIn) { showToast('로그인이 필요합니다.'); setModalType('login'); return; }
+            setModalType('edit');
+          }}
+          onCommentSubmit={handleCommentSubmit}
+          onCommentDelete={handleCommentDelete}
+          isLoggedIn={isLoggedIn}
+          setModalType={setModalType}
+          showToast={showToast}
+          userId={userId}
+          userName={userName}
+          isAdmin={isAdmin}
+        />
+      )}
+      {view === 'detail' && <BookDetail onBack={() => setView('main')} onJoin={joinGroup} />}
+      {view === 'library' && <MyLibraryView wishList={wishList} myList={myList} joinedGroups={joinedGroups} onRemove={removeFromLibrary} onLeaveGroup={leaveGroup} />}
+      {view === 'group' && <GroupView onJoin={joinGroup} />}
+      {view === 'userinfo' && (
+        <UserInfoView
+          userId={userId}
+          userName={userName}
+          onNicknameChange={handleNicknameChange}
+          onLogout={() => {
+            setIsLoggedIn(false); setUserName(''); setUserId(null); setIsAdmin(false); setView('main');
+            localStorage.removeItem('userName'); localStorage.removeItem('userId'); localStorage.removeItem('isAdmin');
+          }}
+        />
+      )}
+      {view === 'admin' && <AdminView userId={userId} />}
+    </>
+  );
 
   return (
     <div className="wrapper" onClick={() => setIsSearchOpen(false)}>
       <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
       {toast && <div className="toast-container">{toast}</div>}
 
-      <Sidebar view={view} setView={setView} />
+      {/* 사이드바: 모바일 모드일 때 숨김 */}
+      {!isMobileMode && (
+        <Sidebar
+          view={view}
+          setView={setView}
+          isMobileMode={isMobileMode}
+          toggleMobileMode={toggleMobileMode}
+        />
+      )}
 
       <main className="main-content">
-        <Header
-          isLoggedIn={isLoggedIn}
-          userName={userName}
-          notifications={notifications}
-          isNotiOpen={isNotiOpen}
-          setIsNotiOpen={setIsNotiOpen}
-          isMenuOpen={isMenuOpen}
-          setIsMenuOpen={setIsMenuOpen}
-          setModalType={setModalType}
-          setIsLoggedIn={setIsLoggedIn}
-          deleteNotification={deleteNotification}
-          allRead={allRead}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          isSearchOpen={isSearchOpen}
-          setIsSearchOpen={setIsSearchOpen}
-          allBooks={allBooks}
-          onAddBook={addToMyLibrary}
-          setView={setView}
-          setUserName={setUserName}
-          setUserId={setUserId}
-          isAdmin={isAdmin}
-          setIsAdmin={setIsAdmin}
-        />
-
-        {view === 'main' && <HomeView popularBooks={allBooks} setView={setView} />}
-        {view === 'community' && <CommunityView boardData={null} handleBoardDetail={handleBoardDetail} />}
-        {view === 'board-detail' && (
-          <BoardList
-            title={selectedBoard.title}
-            posts={selectedBoard.data}
-            onBack={() => setView('community')}
-            onPostClick={handlePostDetail}
-            onWriteClick={() => {
-              if (!isLoggedIn) {
-                showToast('로그인이 필요합니다.');
-                setModalType('login');
-                return;
-              }
-              setModalType('write');
-            }}
-          />
-        )}
-        {view === 'post-detail' && (
-  <PostDetail
-    post={selectedPost}
-    onBack={() => setView('board-detail')}
-    onDelete={handleDeletePost}
-    onEdit={() => {
-      if (!isLoggedIn) {
-        showToast('로그인이 필요합니다.');
-        setModalType('login');
-        return;
-      }
-      setModalType('edit');
-    }}
-    onCommentSubmit={handleCommentSubmit}
-    onCommentDelete={handleCommentDelete}
-    isLoggedIn={isLoggedIn}
-    setModalType={setModalType}
-    showToast={showToast}
-    userId={userId}
-    userName={userName}
-    isAdmin={isAdmin}
-  />
-)}
-        {view === 'detail' && <BookDetail onBack={() => setView('main')} onJoin={joinGroup} />}
-        {view === 'library' && <MyLibraryView wishList={wishList} myList={myList} joinedGroups={joinedGroups} onRemove={removeFromLibrary} onLeaveGroup={leaveGroup} />}
-        {view === 'group' && <GroupView onJoin={joinGroup} />}
-        {view === 'userinfo' && (
-          <UserInfoView
-            userId={userId}
+        {/* 모바일 헤더 */}
+        {isMobileMode && (
+          <MobileHeader
+            view={view}
+            setView={setView}
+            isLoggedIn={isLoggedIn}
             userName={userName}
-            onNicknameChange={handleNicknameChange}
-            onLogout={() => { setIsLoggedIn(false); setUserName(''); setUserId(null); setIsAdmin(false); setView('main'); localStorage.removeItem('userName'); localStorage.removeItem('userId'); localStorage.removeItem('isAdmin'); }}
+            userId={userId}
+            notifications={notifications}
+            deleteNotification={deleteNotification}
+            allRead={allRead}
+            setModalType={setModalType}
+            setIsLoggedIn={setIsLoggedIn}
+            setUserName={setUserName}
+            setUserId={setUserId}
+            setIsAdmin={setIsAdmin}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            isSearchOpen={isSearchOpen}
+            setIsSearchOpen={setIsSearchOpen}
+            allBooks={allBooks}
+            onAddBook={addToMyLibrary}
+            isMobileMode={isMobileMode}
+            toggleMobileMode={toggleMobileMode}
+            isAdmin={isAdmin}
           />
         )}
-        {view === 'admin' && <AdminView userId={userId} />}
+
+        {/* PC 헤더 */}
+        {!isMobileMode && (
+          <Header
+            isLoggedIn={isLoggedIn}
+            userName={userName}
+            notifications={notifications}
+            isNotiOpen={isNotiOpen}
+            setIsNotiOpen={setIsNotiOpen}
+            isMenuOpen={isMenuOpen}
+            setIsMenuOpen={setIsMenuOpen}
+            setModalType={setModalType}
+            setIsLoggedIn={setIsLoggedIn}
+            deleteNotification={deleteNotification}
+            allRead={allRead}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            isSearchOpen={isSearchOpen}
+            setIsSearchOpen={setIsSearchOpen}
+            allBooks={allBooks}
+            onAddBook={addToMyLibrary}
+            setView={setView}
+            setUserName={setUserName}
+            setUserId={setUserId}
+            isAdmin={isAdmin}
+            setIsAdmin={setIsAdmin}
+          />
+        )}
+
+        {/* 콘텐츠 영역 */}
+        <div style={isMobileMode ? { paddingTop: '120px', paddingLeft: '16px', paddingRight: '16px', paddingBottom: '20px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' } : {}}>
+          {renderContent()}
+        </div>
       </main>
 
       {modalType === 'login' && <LoginModal onClose={() => setModalType(null)} onLoginSuccess={handleLoginSuccess} onShowSignup={() => setModalType('signup')} />}
