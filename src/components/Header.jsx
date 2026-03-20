@@ -42,7 +42,7 @@ const Header = ({
       <span className="result-author">{book.author}</span>
     </div>
     
-    {/* 버튼 그룹으로 변경하여 선택권 제공 */}
+    {/* 선택 버튼 */}
     <div className="add-actions">
       <button 
         className="add-wish-btn" 

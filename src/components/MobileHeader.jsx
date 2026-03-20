@@ -110,7 +110,7 @@ const MobileHeader = ({
         </div>
       </header>
 
-      {/* 햄버거 드로어 메뉴 */}
+      {/* 햄버거 드롭다운 메뉴 */}
       {isMenuOpen && (
         <div style={{
           position: 'fixed', top: '56px', left: 0, right: 0, bottom: 0,

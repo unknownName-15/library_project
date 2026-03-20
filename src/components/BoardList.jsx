@@ -31,28 +31,28 @@ const BoardList = ({ title, posts, onBack, onPostClick, onWriteClick }) => {
                 <td style={{ padding: '18px' }}>{posts.length - index}</td>
                 
                 <td
-  className="table-title"
-  onClick={() => onPostClick(post)}
-  style={{
-    padding: '18px',
-    textAlign: 'left',
-    fontWeight: '500',
-    cursor: 'pointer',
-    color: '#333'
-  }}
->
-  {post.title}
-  {post.comment_count > 0 && (
-    <span style={{
-      marginLeft: '8px',
-      fontSize: '13px',
-      color: 'var(--color-point)',
-      fontWeight: 'bold'
-    }}>
-      [{post.comment_count}]
-    </span>
-  )}
-</td>
+                  className="table-title"
+                  onClick={() => onPostClick(post)}
+                  style={{
+                    padding: '18px',
+                    textAlign: 'left',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    color: '#333'
+                  }}
+                >
+                  {post.title}
+                  {post.comment_count > 0 && (
+                    <span style={{
+                      marginLeft: '8px',
+                      fontSize: '13px',
+                      color: 'var(--color-point)',
+                      fontWeight: 'bold'
+                    }}>
+                      [{post.comment_count}]
+                    </span>
+                  )}
+                </td>
                 
                 <td style={{ padding: '18px' }}>익명</td>
                 <td style={{ padding: '18px', color: '#999', fontSize: '13px' }}>

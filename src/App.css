@@ -741,9 +741,8 @@ body {
 /* fade-in 애니메이션 */
 .fade-in { animation: fadeIn 0.3s ease; }
 
-/* ===================== */
-/* ===== 모바일 모드 ===== */
-/* ===================== */
+
+/* 모바일 모드 */
 
 body.mobile-mode {
   overflow-x: hidden;
@@ -834,7 +833,7 @@ body.mobile-mode .post-date {
   color: #999 !important;
 }
 
-/* 게시판 목록 → 카드 형태 */
+/* 게시판 목록 */
 body.mobile-mode .board-list-container {
   width: 100% !important;
   box-sizing: border-box !important;
