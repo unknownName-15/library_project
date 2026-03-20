@@ -1,9 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 const Sidebar = ({ view, setView, isMobileMode, toggleMobileMode }) => {
-  const [isSettingOpen, setIsSettingOpen] = useState(false);
-
-  // 모바일 모드일 때는 사이드바 숨김
   if (isMobileMode) return null;
 
   return (
@@ -24,32 +21,12 @@ const Sidebar = ({ view, setView, isMobileMode, toggleMobileMode }) => {
         <div className={`menu-item ${view === 'group' ? 'active' : ''}`} onClick={() => setView('group')}>
           <i className="ri-calendar-event-line"></i> 독서 모임
         </div>
-      </nav>
 
-      {/* 설정 메뉴 */}
-      <div style={{ marginTop: 'auto' }}>
-        <div 
-          className="menu-item" 
-          onClick={() => setIsSettingOpen(!isSettingOpen)} 
-          style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-        >
-          <span><i className="ri-settings-3-line"></i> 설정</span>
-          <i className={isSettingOpen ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'}></i>
+        {/* 모바일 버전 전환 */}
+        <div className="menu-item" onClick={toggleMobileMode} style={{ cursor: 'pointer' }}>
+          <i className="ri-smartphone-line"></i> 모바일 버전
         </div>
-
-        {/* 설정 서브메뉴 */}
-        {isSettingOpen && (
-          <div style={{ backgroundColor: '#f8f9f7', borderRadius: '10px', margin: '5px 10px', overflow: 'hidden' }}>
-            <div 
-              className="menu-item" 
-              onClick={toggleMobileMode}
-              style={{ fontSize: '13px', padding: '10px 15px' }}
-            >
-              <i className="ri-smartphone-line"></i> 모바일 버전
-            </div>
-          </div>
-        )}
-      </div>
+      </nav>
     </aside>
   );
 };
