@@ -38,8 +38,12 @@ const MyLibraryView = ({ wishList, myList, joinedGroups, onRemove, onLeaveGroup 
                 <button className="delete-btn" onClick={() => onRemove(book.id, 'wish')}>
                   <i className="ri-delete-bin-line"></i>
                 </button>
-                <div className="card-img" style={{ height: '140px' }}>
-                  <i className="ri-book-read-line"></i>
+                <div className="card-img" style={{ height: '140px', padding: 0, overflow: 'hidden' }}>
+                  {book.thumbnail ? (
+                    <img src={book.thumbnail} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <i className="ri-book-read-line"></i>
+                  )}
                 </div>
                 <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{book.title}</div>
               </div>
@@ -60,8 +64,12 @@ const MyLibraryView = ({ wishList, myList, joinedGroups, onRemove, onLeaveGroup 
                 <button className="delete-btn" onClick={() => onRemove(book.id, 'read')}>
                   <i className="ri-delete-bin-line"></i>
                 </button>
-                <div className="card-img" style={{ height: '140px', background: '#f0f4ef' }}>
-                  <i className="ri-checkbox-circle-line" style={{ color: 'var(--color-point)' }}></i>
+                <div className="card-img" style={{ height: '140px', padding: 0, overflow: 'hidden', background: '#f0f4ef' }}>
+                  {book.thumbnail ? (
+                    <img src={book.thumbnail} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <i className="ri-checkbox-circle-line" style={{ color: 'var(--color-point)' }}></i>
+                  )}
                 </div>
                 <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{book.title}</div>
               </div>

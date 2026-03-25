@@ -17,6 +17,7 @@ import GroupView from './components/GroupView';
 import UserInfoView from './components/UserInfoView';
 import AdminView from './components/AdminView';
 import MobileHeader from './components/MobileHeader';
+import BookSearchView from './components/BookSearchView';
 
 const BookCommunityApp = () => {
   const [view, setView] = useState('main');
@@ -70,6 +71,13 @@ const BookCommunityApp = () => {
   const showToast = (message) => {
     setToast(message);
     setTimeout(() => setToast(''), 3000);
+  };
+
+  const [bookSearchQuery, setBookSearchQuery] = useState('');
+
+  const handleBookSearch = (query) => {
+    setBookSearchQuery(query);
+    setView('book-search');
   };
 
   // 알림 불러오기
@@ -229,19 +237,26 @@ const BookCommunityApp = () => {
 
   // 서재 관련
   const addToMyLibrary = (book, type) => {
-    if (type === 'wish') {
-      if (wishList.find(b => b.id === book.id)) { showToast('이미 위시리스트에 있는 책입니다.'); return; }
-      setWishList([...wishList, book]);
-      showToast(`'${book.title}'이(가) 위시리스트에 추가되었습니다.`);
-    } else if (type === 'read') {
-      if (myList.find(b => b.id === book.id)) { showToast('이미 마이리스트에 있는 책입니다.'); return; }
-      setMyList([...myList, book]);
-      showToast(`'${book.title}'이(가) 마이리스트에 추가되었습니다.`);
-    }
-    if (!myBooks.find(b => b.id === book.id)) setMyBooks([...myBooks, book]);
-    setIsSearchOpen(false);
-    setSearchQuery('');
+  const bookData = {
+    id: book.isbn || book.id,
+    title: book.title,
+    author: book.authors || book.author,
+    thumbnail: book.thumbnail || null
   };
+
+  if (type === 'wish') {
+    if (wishList.find(b => b.id === bookData.id)) { showToast('이미 위시리스트에 있는 책입니다.'); return; }
+    setWishList([...wishList, bookData]);
+    showToast(`'${bookData.title}'이(가) 위시리스트에 추가되었습니다.`);
+  } else if (type === 'read') {
+    if (myList.find(b => b.id === bookData.id)) { showToast('이미 마이리스트에 있는 책입니다.'); return; }
+    setMyList([...myList, bookData]);
+    showToast(`'${bookData.title}'이(가) 마이리스트에 추가되었습니다.`);
+  }
+  if (!myBooks.find(b => b.id === bookData.id)) setMyBooks([...myBooks, bookData]);
+  setIsSearchOpen(false);
+  setSearchQuery('');
+};
 
   const removeFromLibrary = (bookId, type) => {
     if (type === 'wish') { setWishList(wishList.filter(b => b.id !== bookId)); showToast('위시리스트에서 삭제되었습니다.'); }
@@ -283,7 +298,7 @@ const BookCommunityApp = () => {
   // 콘텐츠 뷰 렌더링
   const renderContent = () => (
     <>
-      {view === 'main' && <HomeView popularBooks={allBooks} setView={setView} />}
+      {view === 'main' && <HomeView setView={setView} onAddBook={addToMyLibrary} />}
       {view === 'community' && <CommunityView handleBoardDetail={handleBoardDetail} />}
       {view === 'board-detail' && (
         <BoardList
@@ -331,6 +346,12 @@ const BookCommunityApp = () => {
         />
       )}
       {view === 'admin' && <AdminView userId={userId} />}
+      {view === 'book-search' && (
+        <BookSearchView
+          query={bookSearchQuery}
+          onAddBook={addToMyLibrary}
+        />
+      )}
     </>
   );
 
@@ -375,6 +396,7 @@ const BookCommunityApp = () => {
             isMobileMode={isMobileMode}
             toggleMobileMode={toggleMobileMode}
             isAdmin={isAdmin}
+            onSearch={handleBookSearch}
           />
         )}
 
@@ -403,6 +425,7 @@ const BookCommunityApp = () => {
             setUserId={setUserId}
             isAdmin={isAdmin}
             setIsAdmin={setIsAdmin}
+            onSearch={handleBookSearch}
           />
         )}
 
