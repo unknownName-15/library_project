@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const MobileHeader = ({
   view, setView,
@@ -8,10 +8,37 @@ const MobileHeader = ({
   searchQuery, setSearchQuery, isSearchOpen, setIsSearchOpen,
   allBooks, onAddBook,
   isMobileMode, toggleMobileMode,
-  isAdmin
+  isAdmin, onSearch
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotiOpen, setIsNotiOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  // 검색어 변경 시 카카오 API 호출
+useEffect(() => {
+  if (!searchQuery.trim()) { setSearchResults([]); return; }
+  const timer = setTimeout(async () => {
+    setSearchLoading(true);
+    try {
+      const res = await fetch(`https://keepinsight.dothome.co.kr/api/search_books.php?query=${encodeURIComponent(searchQuery)}`);
+      const data = await res.json();
+      if (data.success) setSearchResults(data.books.slice(0, 5));
+    } catch (err) {
+      console.error('검색 실패', err);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, 300);
+  return () => clearTimeout(timer);
+}, [searchQuery]);
+
+// 엔터/돋보기 클릭 시 검색 결과 페이지로 이동
+const handleSearch = () => {
+  if (!searchQuery.trim()) return;
+  setIsSearchOpen(false);
+  onSearch(searchQuery);
+};
 
   const unreadCount = notifications.filter(n => n.is_read == 0).length;
 
@@ -215,45 +242,66 @@ const MobileHeader = ({
       )}
 
       {/* 검색바 */}
-      <div style={{
-        position: 'fixed', top: '56px', left: 0, right: 0, zIndex: 998,
-        backgroundColor: 'white', padding: '10px 16px',
-        borderBottom: '1px solid #f0f0f0'
-      }} onClick={(e) => e.stopPropagation()}>
-        <div style={{ position: 'relative' }}>
-          <i className="ri-search-line" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }}></i>
-          <input
-            type="text"
-            placeholder="어떤 책을 찾으시나요?"
-            value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setIsSearchOpen(true); }}
-            onFocus={() => setIsSearchOpen(true)}
-            style={{
-              width: '100%', padding: '10px 10px 10px 36px',
-              borderRadius: '20px', border: '1px solid #eee',
-              backgroundColor: '#f8f9f7', outline: 'none', fontSize: '14px',
-              boxSizing: 'border-box'
-            }}
-          />
-          {isSearchOpen && searchQuery && (
-            <div className="search-results" style={{ top: '45px' }}>
-              {filteredBooks.map(book => (
-                <div key={book.id} className="search-result-item">
-                  <i className="ri-book-line result-icon"></i>
-                  <div className="result-info">
-                    <span className="result-title">{book.title}</span>
-                    <span className="result-author">{book.author}</span>
-                  </div>
-                  <div className="add-actions">
-                    <button className="add-wish-btn" onClick={() => onAddBook(book, 'wish')}>위시</button>
-                    <button className="add-my-btn" onClick={() => onAddBook(book, 'read')}>읽음</button>
-                  </div>
-                </div>
-              ))}
+<div style={{
+  position: 'fixed', top: '56px', left: 0, right: 0, zIndex: 998,
+  backgroundColor: 'white', padding: '10px 16px',
+  borderBottom: '1px solid #f0f0f0'
+}} onClick={(e) => e.stopPropagation()}>
+  <div style={{ position: 'relative' }}>
+    <i
+      className="ri-search-line"
+      onClick={handleSearch}
+      style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999', cursor: 'pointer' }}
+    ></i>
+    <input
+      type="text"
+      placeholder="어떤 책을 찾으시나요?"
+      value={searchQuery}
+      onChange={(e) => { setSearchQuery(e.target.value); setIsSearchOpen(true); }}
+      onFocus={() => setIsSearchOpen(true)}
+      onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+      style={{
+        width: '100%', padding: '10px 10px 10px 36px',
+        borderRadius: '20px', border: '1px solid #eee',
+        backgroundColor: '#f8f9f7', outline: 'none', fontSize: '14px',
+        boxSizing: 'border-box'
+      }}
+    />
+
+    {/* 검색 결과 드롭다운 */}
+    {isSearchOpen && searchQuery && (
+      <div className="search-results" style={{ top: '45px' }}>
+        {searchLoading ? (
+          <div style={{ padding: '15px', textAlign: 'center', color: '#999' }}>검색 중...</div>
+        ) : searchResults.length > 0 ? (
+          searchResults.map((book, index) => (
+            <div key={index} className="search-result-item">
+              {book.thumbnail ? (
+                <img
+                  src={book.thumbnail}
+                  alt={book.title}
+                  style={{ width: '36px', height: '52px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }}
+                />
+              ) : (
+                <i className="ri-book-line result-icon"></i>
+              )}
+              <div className="result-info">
+                <span className="result-title">{book.title}</span>
+                <span className="result-author">{book.authors}</span>
+              </div>
+              <div className="add-actions">
+                <button className="add-wish-btn" onClick={() => onAddBook(book, 'wish')}>위시</button>
+                <button className="add-my-btn" onClick={() => onAddBook(book, 'read')}>읽음</button>
+              </div>
             </div>
-          )}
-        </div>
+          ))
+        ) : (
+          <div className="no-result">검색 결과가 없습니다.</div>
+        )}
       </div>
+    )}
+  </div>
+</div>
     </>
   );
 };
