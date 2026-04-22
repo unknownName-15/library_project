@@ -14,7 +14,7 @@ const SignupModal = ({ onClose, onShowLogin }) => {
 
     setLoading(true);
     try {
-      const res = await fetch('https://keepinsight.dothome.co.kr/api/register.php', {
+      const res = await fetch('https://keepinsight.dothome.co.kr/api1/register.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nickname, email, password })

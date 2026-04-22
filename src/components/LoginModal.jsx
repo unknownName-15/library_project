@@ -14,7 +14,7 @@ const LoginModal = ({ onClose, onLoginSuccess, onShowSignup }) => {
 
     setLoading(true);
     try {
-      const res = await fetch('https://keepinsight.dothome.co.kr/api/login.php', {
+      const res = await fetch('https://keepinsight.dothome.co.kr/api1/login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

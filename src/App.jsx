@@ -145,40 +145,20 @@ const BookCommunityApp = () => {
     setView('board-detail');
   };
 
-  // 글쓰기
-  const handleWriteSubmit = async (newPost) => {
-    try {
-      const res = await fetch(`${API_BASE}/write_post.php`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          board_type: selectedBoard.type,
-          title: newPost.title,
-          content: newPost.content,
-          writer: userName || '익명',
-          user_id: userId
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast('글이 등록되었습니다!');
-        const posts = await fetchPosts(selectedBoard.type);
-        setSelectedBoard(prev => ({ ...prev, data: posts }));
-      } else {
-        showToast(data.message);
-      }
-    } catch (err) {
-      showToast('글 등록에 실패했습니다.');
-    }
+  // 글쓰기 - WriteModal에서 API 직접 호출 후 성공 시 이 함수로 새로고침만 처리
+  const handleWriteSubmit = async () => {
+    showToast('글이 등록되었습니다!');
+    const posts = await fetchPosts(selectedBoard.type);
+    setSelectedBoard(prev => ({ ...prev, data: posts }));
   };
 
   // 글 수정
   const handleEditSubmit = async (updatedPost) => {
     try {
-      const res = await fetch(`${API_BASE}/edit_post.php`, {
+      const res = await fetch(`${API_BASE}/update_post.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: updatedPost.id, title: updatedPost.title, content: updatedPost.content })
+        body: JSON.stringify({ id: updatedPost.id, user_id: userId, title: updatedPost.title, content: updatedPost.content })
       });
       const data = await res.json();
       if (data.success) {
@@ -200,7 +180,7 @@ const BookCommunityApp = () => {
       const res = await fetch(`${API_BASE}/delete_post.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: postId })
+        body: JSON.stringify({ id: postId, user_id: userId })
       });
       const data = await res.json();
       if (data.success) {
@@ -437,7 +417,7 @@ const BookCommunityApp = () => {
 
       {modalType === 'login' && <LoginModal onClose={() => setModalType(null)} onLoginSuccess={handleLoginSuccess} onShowSignup={() => setModalType('signup')} />}
       {modalType === 'signup' && <SignupModal onClose={() => setModalType(null)} onShowLogin={() => setModalType('login')} />}
-      {modalType === 'write' && <WriteModal boardTitle={selectedBoard.title} onClose={() => setModalType(null)} onSubmit={handleWriteSubmit} />}
+      {modalType === 'write' && <WriteModal boardTitle={selectedBoard.title} boardType={selectedBoard.type} userId={userId} onClose={() => setModalType(null)} onSubmit={handleWriteSubmit} />}
       {modalType === 'edit' && <EditModal post={selectedPost} onClose={() => setModalType(null)} onSubmit={handleEditSubmit} />}
     </div>
   );

@@ -21,7 +21,7 @@ useEffect(() => {
   const timer = setTimeout(async () => {
     setSearchLoading(true);
     try {
-      const res = await fetch(`https://keepinsight.dothome.co.kr/api/search_books.php?query=${encodeURIComponent(searchQuery)}`);
+      const res = await fetch(`https://keepinsight.dothome.co.kr/api1/search_books.php?query=${encodeURIComponent(searchQuery)}`);
       const data = await res.json();
       if (data.success) setSearchResults(data.books.slice(0, 5));
     } catch (err) {
