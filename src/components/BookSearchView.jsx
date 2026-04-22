@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BOOK_SEARCH } from '../api/config';
 
-const RECOMMEND_BOOKS = 'https://keepinsight.dothome.co.kr/api/recommend_books.php';
+const RECOMMEND_BOOKS = 'https://keepinsight.dothome.co.kr/api1/recommend_books.php';
 
 const BookSearchView = ({ query, onAddBook }) => {
   const [books, setBooks] = useState([]);
